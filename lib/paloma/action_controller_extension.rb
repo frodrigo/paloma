@@ -24,8 +24,8 @@ module Paloma
       # Use on controllers to pass variables to Paloma controller.
       #
       def js params = {}
-        return session[:paloma_requests].pop if !params
-        session[:paloma_requests].last[:params] = params
+        return @request_paloma_requests.pop if !params
+        @request_paloma_requests.last[:params] = params
       end
 
 
@@ -40,8 +40,8 @@ module Paloma
         paloma_request = {:resource => resource,
                           :action => self.action_name}
 
-        session[:paloma_requests] ||= []
-        session[:paloma_requests].push paloma_request
+        @request_paloma_requests ||= []
+        @request_paloma_requests.push paloma_request
       end
 
 
@@ -53,11 +53,11 @@ module Paloma
       # will execute the tracked Paloma requests.
       #
       def append_paloma_hook
-        return true if session[:paloma_requests].empty?
+        return true if @request_paloma_requests.empty?
 
         hook = view_context.render(
                   :partial => 'paloma/hook',
-                  :locals => {:requests => session[:paloma_requests]})
+                  :locals => {:requests => @request_paloma_requests})
 
         before_body_end_index = response_body[0].rindex('</body>')
 
@@ -72,7 +72,7 @@ module Paloma
           response.body += hook
         end
 
-        session[:paloma_requests] = nil
+        @request_paloma_requests = nil
       end
     end
 
